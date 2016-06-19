@@ -38,7 +38,8 @@ class radiocurses(object):
     print 'refreshing di.fm channel cache'
     data = requests.get(DICHANNELS)
     channels = []
-    for channel in data.json()['WP']['channels']:
+    data = simplejson.loads(data.text)
+    for channel in data['WP']['channels']:
       channels.append((channel['name'], channel['key']))
     self.dichannels = channels
     self.StoreDiChannels(channels)
@@ -49,11 +50,11 @@ class radiocurses(object):
     dicache.close()
 
   def ReadDiChannels(self):
-    if (time.time() - os.stat('di.json').st_mtime) > MAXCACHEAGE:      
-      return self.fetchDiFM()
     try:
+      if (time.time() - os.stat('di.json').st_mtime) > MAXCACHEAGE:      
+        return self.fetchDiFM()
       self.dichannels = simplejson.loads(open('di.json').read())
-    except IOError:
+    except (IOError, OSError):
       self.fetchDiFM()
 
 if __name__ == '__main__':

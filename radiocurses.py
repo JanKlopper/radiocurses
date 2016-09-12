@@ -38,7 +38,7 @@ class radiocurses(object):
     menu.show()
 
   def fetchDiFM(self):
-    print 'Refreshing DI.fm channel cache'
+    print 'Refreshing DI.fm channel cache...'
     channels = []
     for url in DICHANNELS:
       data = requests.get(url)

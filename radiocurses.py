@@ -34,7 +34,7 @@ class radiocurses(object):
     code = (self.options.premium if self.options.premium else CODE)
     for channel in self.dichannels:
       url = "%s" % (PLAYER % (DIURLPREMIUM % (channel[1], code)))
-      menu.append_item(CommandItem(channel[0].encode('utf-8'), url))
+      menu.append_item(CommandItem((channel[0] + '\n').encode('utf-8'), url))
     menu.show()
 
   def fetchDiFM(self):

@@ -11,7 +11,10 @@ import requests
 import simplejson
 import time
 
-DICHANNELS = 'http://www.di.fm/webplayer3/config'
+DICHANNELS = ['http://www.di.fm/webplayer3/config',
+              'http://www.rockradio.com/webplayer3/config',
+              'http://www.jazzradio.com/webplayer3/config',
+              'http://www.radiotunes.com/webplayer3/config']
 DIURLPREMIUM = 'http://prem2.di.fm:80/%s_hi?%s'
 PLAYER = 'mplayer %s'
 CODE = '' # fill this with your premium code
@@ -23,24 +26,25 @@ class radiocurses(object):
     self.options = options
     self.dichannels = []
     self.ReadDiChannels()
-    
-    menu = CursesMenu("Radio Curses by Frack.nl", "Select a channel:")
-    menu.append_item(FunctionItem("Refresh DI cache", self.fetchDiFM))
 
-    
+    menu = CursesMenu("Radio Curses by Frack.nl", "Select a channel:")
+    menu.append_item(FunctionItem("Refresh DI.fm cache", self.fetchDiFM))
+
+
     code = (self.options.premium if self.options.premium else CODE)
     for channel in self.dichannels:
       url = "%s" % (PLAYER % (DIURLPREMIUM % (channel[1], code)))
-      menu.append_item(CommandItem(channel[0], url))
+      menu.append_item(CommandItem(channel[0].encode('utf-8'), url))
     menu.show()
- 
+
   def fetchDiFM(self):
-    print 'refreshing di.fm channel cache'
-    data = requests.get(DICHANNELS)
+    print 'Refreshing DI.fm channel cache'
     channels = []
-    data = simplejson.loads(data.text)
-    for channel in data['WP']['channels']:
-      channels.append((channel['name'], channel['key']))
+    for url in DICHANNELS:
+      data = requests.get(url)
+      data = simplejson.loads(data.text)
+      for channel in data['WP']['channels']:
+        channels.append((channel['name'], channel['key']))
     self.dichannels = channels
     self.StoreDiChannels(channels)
 
@@ -51,7 +55,7 @@ class radiocurses(object):
 
   def ReadDiChannels(self):
     try:
-      if (time.time() - os.stat('di.json').st_mtime) > MAXCACHEAGE:      
+      if (time.time() - os.stat('di.json').st_mtime) > MAXCACHEAGE:
         return self.fetchDiFM()
       self.dichannels = simplejson.loads(open('di.json').read())
     except (IOError, OSError):

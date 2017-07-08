@@ -13,9 +13,10 @@ import simplejson
 import time
 
 DICHANNELS = ['http://listen.di.fm/premium_high.json',
+              'http://listen.radiotunes.com/premium_high.json',
               'http://listen.rockradio.com/premium_high.json',
               'http://listen.jazzradio.com/premium_high.json',
-              'http://listen.radiotunes.com/premium_high.json']
+              'http://listen.classicalradio.com/premium_high.json']
 DIURLPREMIUM = 'http://prem2.di.fm:80/%s_hi?%s'
 PLAYER = 'mplayer -nolirc -nojoystick -quiet %s'
 CODE = ''  # fill this with your premium code

@@ -12,10 +12,10 @@ import requests
 import simplejson
 import time
 
-DICHANNELS = ['http://www.di.fm/webplayer3/config',
-              'http://www.rockradio.com/webplayer3/config',
-              'http://www.jazzradio.com/webplayer3/config',
-              'http://www.radiotunes.com/webplayer3/config']
+DICHANNELS = ['http://listen.di.fm/premium_high.json',
+              'http://listen.rockradio.com/premium_high.json',
+              'http://listen.jazzradio.com/premium_high.json',
+              'http://listen.radiotunes.com/premium_high.json']
 DIURLPREMIUM = 'http://prem2.di.fm:80/%s_hi?%s'
 PLAYER = 'mplayer -nolirc -nojoystick -quiet %s'
 CODE = ''  # fill this with your premium code
@@ -74,8 +74,9 @@ class radiocurses(object):
         data.raise_for_status()
         data = simplejson.loads(data.text)
         print 'Succesfully loaded channels from %s' % url
-        for channel in data['WP']['channels']:
+        for channel in data:
           channels.append((channel['name'], channel['key']))
+
       except Exception as error:
         print error
 

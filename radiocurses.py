@@ -1,6 +1,7 @@
 #!/usr/bin/python2.7
 """A python curses di.fm stream player for low mem systems"""
-__author__ = 'Jan Klopper (jan@underdark.nl)'
+__author__ = ('Jan Klopper <jan@underdark.nl>',
+              'Gerjan Klinkhamer gerjan@underdark.nl')
 __version__ = 0.1
 
 import curses

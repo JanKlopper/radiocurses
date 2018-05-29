@@ -17,13 +17,15 @@ DICHANNELS = ['http://listen.di.fm/premium_high.json',
               'http://listen.rockradio.com/premium_high.json',
               'http://listen.jazzradio.com/premium_high.json',
               'http://listen.classicalradio.com/premium_high.json']
-DIURLPREMIUM = 'http://prem2.di.fm:80/%s_hi?%s'
+DIURLPREMIUM = 'http://prem4.di.fm:80/%s_hi?%s'
 PLAYER = 'mplayer -nolirc -nojoystick -quiet %s'
 CODE = ''  # fill this with your premium code
 MAXCACHEAGE = (60*60*24*7)  # in seconds
 PAGEOFFSET = 15
+CONFIGFILE = "~/.radiocurses"
 
 class MyCursesMenu(CursesMenu):
+
   def process_user_input(self):
     """
     Gets the next single character and decides what to do with it
@@ -56,15 +58,45 @@ class radiocurses(object):
     self.options = options
     self.dichannels = []
     self.ReadDiChannels()
+    self.menu = None
 
-    menu = MyCursesMenu("Radio Curses by Frack.nl", "Select a channel:")
-    menu.append_item(FunctionItem("Refresh DI.fm cache", self.fetchDiFM))
+    if self.options.premium:
+      self.SaveCode(self.options.premium)
+      self.code = self.options.premium
+    else:
+      configcode = self.ReadCode()
+      if configcode:
+        self.code = configcode
+      else:
+        self.code = CODE
+    self.Populate()
 
-    code = (self.options.premium if self.options.premium else CODE)
+  def Populate(self):
+    """Actually populates the menu"""
+    self.menu = MyCursesMenu("Radio Curses by Frack.nl", "Select a channel:")
+    self.menu.append_item(FunctionItem("Refresh DI.fm cache", self.fetchDiFM))
+
     for channel in self.dichannels:
-      url = "%s" % (PLAYER % (DIURLPREMIUM % (channel[1], code)))
-      menu.append_item(CommandItem((channel[0] + '\n').encode('utf-8'), url))
-    menu.show()
+      url = "%s" % (PLAYER % (DIURLPREMIUM % (channel[1], self.code)))
+      self.menu.append_item(CommandItem((channel[0] + '\n').encode('utf-8'), url))
+    self.menu.show()
+
+  def ReadCode(self):
+    """Read the users premium code to a config file"""
+    try:
+      with open(os.path.expanduser(CONFIGFILE), "r") as infile:
+        return infile.read().strip()
+    except IOError:
+      return False
+
+  def SaveCode(self, code):
+    """Store the users premium code to a config file"""
+    try:
+      with open(os.path.expanduser(CONFIGFILE), "w") as outfile:
+        outfile.write(code)
+        print("Premium key stored for future use.")
+    except IOError:
+      print("Could not write premium key to configfile: %r" % CONFIGFILE)
 
   def fetchDiFM(self):
     print 'Refreshing DI.fm channel cache...'

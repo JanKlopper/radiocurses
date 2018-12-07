@@ -60,6 +60,7 @@ class radiocurses(object):
     self.dichannels = []
     self.ReadDiChannels()
     self.menu = None
+    self.sort = self.options.sort
 
     if self.options.premium:
       self.SaveCode(self.options.premium)
@@ -76,10 +77,14 @@ class radiocurses(object):
     """Actually populates the menu"""
     self.menu = MyCursesMenu("Radio Curses by Frack.nl", "Select a channel:")
     self.menu.append_item(FunctionItem("Refresh DI.fm cache", self.fetchDiFM))
-
+    if self.sort:
+      self.dichannels.sort()
+    channelset = set()
     for channel in self.dichannels:
-      url = "%s" % (PLAYER % (DIURLPREMIUM % (channel[1], self.code)))
-      self.menu.append_item(CommandItem((channel[0] + '\n').encode('utf-8'), url))
+      if channel[0] not in channelset:
+        url = "%s" % (PLAYER % (DIURLPREMIUM % (channel[1], self.code)))
+        self.menu.append_item(CommandItem((channel[0] + '\n').encode('utf-8'), url))
+        channelset.add(channel[0])
     self.menu.show()
 
   def ReadCode(self):
@@ -134,5 +139,6 @@ if __name__ == '__main__':
   import optparse
   parser = optparse.OptionParser()
   parser.add_option('-p', action="store", dest="premium", default=None)
+  parser.add_option('-s', action="store", dest="sort", default=True)
   options, remainder = parser.parse_args()
   radio = radiocurses(options)
